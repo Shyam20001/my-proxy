@@ -65,10 +65,47 @@
 // const PORT = process.env.PORT || 10000; // Render uses environment variables for port configuration
 // app.listen(PORT, () => {
 //     console.log(`Proxy server listening on port ${PORT}`);
+// });////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// const httpProxy = require('http-proxy');
+// const http = require('http');
+
+// const proxy = httpProxy.createProxyServer({
+//   secure: false // Optional, if using HTTP
 // });
+
+// proxy.on('error', (err, req, res) => {
+//   console.error('Proxy error:', err);
+//   res.writeHead(500, { 'Content-Type': 'text/plain' });
+//   res.end('Something went wrong.');
+// });
+
+// const server = http.createServer((req, res) => {
+//   req.headers.host = 'playvids.com';
+
+//   proxy.web(req, res, { target: 'https://playvids.com' });
+// }); 
+
+// server.listen(process.env.PORT || 4200, () => {
+//   console.log(`server active @${process.env.PORT}`);
+// });
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 const httpProxy = require('http-proxy');
 const http = require('http');
+const url = require('url');
 
+// Mapping of paths to target sites
+const pathMappings = {
+  '/site1': 'https://playvids.com',
+  '/site2': 'https://motherless.com', // Add more mappings as needed
+  '/site3': 'https://chatgpt.com',
+};
+
+// Create a proxy server
 const proxy = httpProxy.createProxyServer({
   secure: false // Optional, if using HTTP
 });
@@ -79,12 +116,20 @@ proxy.on('error', (err, req, res) => {
   res.end('Something went wrong.');
 });
 
+// Create the server
 const server = http.createServer((req, res) => {
-  req.headers.host = 'playvids.com';
-
-  proxy.web(req, res, { target: 'https://playvids.com' });
-}); 
+  const parsedUrl = url.parse(req.url);
+  const target = pathMappings[parsedUrl.pathname];
+  
+  if (target) {
+    req.headers.host = new URL(target).host; // Set the host header to the target domain
+    proxy.web(req, res, { target });
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Site not found.');
+  }
+});
 
 server.listen(process.env.PORT || 4200, () => {
-  console.log(`server active @${process.env.PORT}`);
+  console.log(`Server active @${process.env.PORT || 4200}`);
 });
