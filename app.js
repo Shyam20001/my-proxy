@@ -1,8 +1,6 @@
-const http = require('http');
+const express = require('express');
 const httpProxy = require('http-proxy');
 const morgan = require('morgan');
-const { createServer } = require('http');
-const express = require('express');
 
 // List of target sites
 const targetSites = [
@@ -14,7 +12,7 @@ const targetSites = [
 // Create a proxy server
 const proxy = httpProxy.createProxyServer({
     changeOrigin: true,
-    secure: false,
+    secure: false, // Consider setting this to true if using HTTPS
 });
 
 // Create an Express application
@@ -23,13 +21,29 @@ const app = express();
 // Use morgan for logging HTTP requests
 app.use(morgan('combined'));
 
-// Middleware for handling requests
+// Middleware for handling CORS
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    // Handle CORS preflight requests
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+    
+    next();
+});
+
+// Middleware for handling proxy requests
 app.use((req, res) => {
     // Extract the site name from the request path or query parameters
     let target = targetSites[0].url; // Default target
 
     // Example: Choose target based on request path or query
-    const siteNameMatch = req.url.match(/\/(\w+)/);
+    const siteNameMatch = req.url.match(/^\/(\w+)/);
     if (siteNameMatch) {
         const siteName = siteNameMatch[1];
         const site = targetSites.find(s => s.name === siteName);
@@ -48,8 +62,7 @@ app.use((req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 60; // Render uses environment variables for port configuration
-//const HOST = process.env.HOST || '0.0.0.0'
+const PORT = process.env.PORT || 10000; // Render uses environment variables for port configuration
 app.listen(PORT, () => {
     console.log(`Proxy server listening on port ${PORT}`);
 });
