@@ -14,6 +14,7 @@
   "author": "Shyam. M",
   "license": "ISC",
   "dependencies": {
-    "http-proxy": "^1.18.1"
+    "http-proxy": "^1.18.1",
+    "node-fetch": "^3.3.2"
   }
 }
