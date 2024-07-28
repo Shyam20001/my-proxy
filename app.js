@@ -68,11 +68,45 @@
 // });////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-const httpProxy = require('http-proxy');
-const http = require('http');
+// const httpProxy = require('http-proxy');
+// const http = require('http');
 
+// const proxy = httpProxy.createProxyServer({
+//   secure: false // Optional, if using HTTP
+// });
+
+// proxy.on('error', (err, req, res) => {
+//   console.error('Proxy error:', err);
+//   res.writeHead(500, { 'Content-Type': 'text/plain' });
+//   res.end('Something went wrong.');
+// });
+
+// const server = http.createServer((req, res) => {
+//   req.headers.host = 'playvids.com';
+
+//   proxy.web(req, res, { target: 'https://playvids.com' });
+// }); 
+
+// server.listen(process.env.PORT || 4200, () => {
+//   console.log(`server active @${process.env.PORT}`);
+// });
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+const httpProxy = require('http-proxy');
+const https = require('https');
+const fs = require('fs');
+
+// Load the self-signed certificate and private key
+const privateKey = fs.readFileSync('certificates/key.pem', 'utf8');
+const certificate = fs.readFileSync('certificates/cert.pem', 'utf8');
+
+const credentials = { key: privateKey, cert: certificate };
+
+// Create a proxy server
 const proxy = httpProxy.createProxyServer({
-  secure: false // Optional, if using HTTP
+  secure: false // Set to false if you're targeting an HTTP server
 });
 
 proxy.on('error', (err, req, res) => {
@@ -81,14 +115,13 @@ proxy.on('error', (err, req, res) => {
   res.end('Something went wrong.');
 });
 
-const server = http.createServer((req, res) => {
-  req.headers.host = 'playvids.com';
+// Create the HTTPS server
+const server = https.createServer(credentials, (req, res) => {
+  req.headers.host = 'playvids.com'; // Adjust the host as needed
 
   proxy.web(req, res, { target: 'https://playvids.com' });
-}); 
-
-server.listen(process.env.PORT || 4200, () => {
-  console.log(`server active @${process.env.PORT}`);
 });
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+server.listen(process.env.PORT || 4200, () => {
+  console.log(`HTTPS proxy server running on port ${process.env.PORT || 4200}`);
+});
