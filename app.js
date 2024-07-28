@@ -95,7 +95,7 @@
 
 
 const httpProxy = require('http-proxy');
-const https = require('https');
+const http = require('http');
 const fs = require('fs');
 
 // Load the self-signed certificate and private key
@@ -116,12 +116,12 @@ proxy.on('error', (err, req, res) => {
 });
 
 // Create the HTTPS server
-const server = https.createServer(credentials, (req, res) => {
+const server = http.createServer(credentials, (req, res) => {
   req.headers.host = 'playvids.com'; // Adjust the host as needed
 
   proxy.web(req, res, { target: 'https://playvids.com' });
 });
 
 server.listen(process.env.PORT || 4200, () => {
-  console.log(`HTTPS proxy server running on port ${process.env.PORT || 4200}`);
+  console.log(`HTTP proxy server running on port ${process.env.PORT || 4200}`);
 });
