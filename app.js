@@ -126,73 +126,11 @@
 //   console.log(`HTTP proxy server running on port ${process.env.PORT || 4200}`);
 // });
 
-
-
-// const httpProxy = require('http-proxy');
-// const http = require('http');
-// const fs = require('fs');
-
-// // Load the self-signed certificate and private key
-// const privateKey = fs.readFileSync('certificates/key.pem', 'utf8');
-// const certificate = fs.readFileSync('certificates/cert.pem', 'utf8');
-
-// const credentials = { key: privateKey, cert: certificate };
-
-// // Create a proxy server
-// const proxy = httpProxy.createProxyServer({
-//   secure: false // Set to false if you're targeting an HTTP server
-// });
-
-// proxy.on('error', (err, req, res) => {
-//   console.error('Proxy error:', err);
-//   res.writeHead(500, { 'Content-Type': 'text/plain' });
-//   res.end('Something went wrong.');
-// });
-
-// // Function to resolve domain using DoH
-// async function resolveDomain(domain) {
-//   try {
-//     const fetch = (await import('node-fetch')).default;
-//     const response = await fetch(`https://cloudflare-dns.com/dns-query?name=${domain}`, {
-//       headers: {
-//         'Accept': 'application/dns-json'
-//       }
-//     });
-//     const data = await response.json();
-//     if (data.Answer && data.Answer.length > 0) {
-//       return data.Answer[0].data;
-//     } else {
-//       throw new Error(`No DNS records found for ${domain}`);
-//     }
-//   } catch (error) {
-//     console.error('DNS resolution error:', error);
-//     throw error;
-//   }
-// }
-
-// // Create the HTTPS server
-// const server = http.createServer(credentials, async (req, res) => {
-//   try {
-//     // Resolve the IP address of the target domain using DoH
-//     const ip = await resolveDomain('www.chatgpt.com/');
-//     console.log(`Resolved IP: ${ip}`);
-
-//     req.headers.host = 'www.chatgpt.com/'; // Set the host header
-
-//     proxy.web(req, res, { target: `https://${ip}` });
-//   } catch (error) {
-//     res.writeHead(500, { 'Content-Type': 'text/plain' });
-//     res.end('Failed to resolve domain.');
-//   }
-// });
-
-// server.listen(process.env.PORT || 4200, () => {
-//   console.log(`HTTP proxy server running on port ${process.env.PORT || 4200}`);
-// });
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 const httpProxy = require('http-proxy');
-const https = require('https');
+const http = require('http');
 const fs = require('fs');
 
 // Load the self-signed certificate and private key
@@ -234,7 +172,7 @@ async function resolveDomain(domain) {
 }
 
 // Create the HTTPS server
-const server = https.createServer(credentials, async (req, res) => {
+const server = http.createServer(credentials, async (req, res) => {
   try {
     // Resolve the IP address of the target domain using DoH
     const ip = await resolveDomain('www.chatgpt.com');
@@ -250,6 +188,5 @@ const server = https.createServer(credentials, async (req, res) => {
 });
 
 server.listen(process.env.PORT || 4200, () => {
-  console.log(`HTTPS proxy server running on port ${process.env.PORT || 4200}`);
+  console.log(`HTTP proxy server running on port ${process.env.PORT || 4200}`);
 });
-
