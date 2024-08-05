@@ -174,10 +174,10 @@ async function resolveDomain(domain) {
 const server = http.createServer(credentials, async (req, res) => {
   try {
     // Resolve the IP address of the target domain using DoH
-    const ip = await resolveDomain('www.tiktok.com');
+    const ip = await resolveDomain('www.chatgpt.com/');
     console.log(`Resolved IP: ${ip}`);
 
-    req.headers.host = 'www.tiktok.com'; // Set the host header
+    req.headers.host = 'www.chatgpt.com/'; // Set the host header
 
     proxy.web(req, res, { target: `https://${ip}` });
   } catch (error) {
